@@ -32,11 +32,7 @@ GitHub Pages (site estático)  ──►  Supabase (Postgres + login)
 4. Vá em **Project Settings → API** e copie a **Project URL** e a **anon public key**.
 
 ### 2. GitHub
-1. No repositório, vá em **Settings → Secrets and variables → Actions → aba Variables** e crie:
-   - `VITE_SUPABASE_URL` = Project URL
-   - `VITE_SUPABASE_ANON_KEY` = anon public key
-
-   A anon key é pública por design: ela vai no JavaScript do site. Quem protege os dados são as políticas RLS.
+1. A URL e a chave publishable do projeto ficam em [`src/lib/supabase.ts`](src/lib/supabase.ts). Elas são públicas por design: vão no JavaScript do site, e quem protege os dados são as políticas RLS. Para usar outro projeto Supabase, troque esses valores ou crie as variáveis `VITE_SUPABASE_URL` e `VITE_SUPABASE_ANON_KEY` em **Settings → Secrets and variables → Actions → Variables**.
 2. Vá em **Settings → Pages → Source** e selecione **GitHub Actions**.
 3. Faça push na `main`. O site vai ao ar em `https://<seu-usuario>.github.io/tira-secreta/`.
 
@@ -46,7 +42,6 @@ O plano grátis pausa o projeto após 7 dias sem uso. O workflow [`keepalive.yml
 ## Desenvolvimento
 
 ```bash
-cp .env.example .env.local   # preencha com os dados do Supabase
 npm install
 npm run dev                  # http://localhost:5173
 npm test                     # testes do sorteio, da criptografia e da importação

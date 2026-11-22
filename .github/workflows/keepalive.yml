@@ -13,8 +13,8 @@ jobs:
     steps:
       - name: Consulta ao banco
         env:
-          URL: ${{ vars.VITE_SUPABASE_URL }}
-          KEY: ${{ vars.VITE_SUPABASE_ANON_KEY }}
+          URL: ${{ vars.VITE_SUPABASE_URL || 'https://rqjmhkxdbsvhjqylgwrj.supabase.co' }}
+          KEY: ${{ vars.VITE_SUPABASE_ANON_KEY || 'sb_publishable_2LWkf_Z1b01urJsU8qWqlw_Ct3MmgC8' }}
         run: |
           code=$(curl -s -o /dev/null -w "%{http_code}" "$URL/rest/v1/rpc/save_event" \
             -H "apikey: $KEY" -H "Authorization: Bearer $KEY" -H "Content-Type: application/json" -d '{}')
