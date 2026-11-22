@@ -1,0 +1,23 @@
+# O plano grátis do Supabase pausa projetos sem atividade por 7 dias.
+# Esta tarefa faz uma consulta leve 2x por semana para mantê-lo ativo.
+name: Manter Supabase ativo
+
+on:
+  schedule:
+    - cron: '0 12 * * 1,4' # segundas e quintas, 09h (Brasília)
+  workflow_dispatch:
+
+jobs:
+  ping:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Consulta ao banco
+        env:
+          URL: ${{ vars.VITE_SUPABASE_URL }}
+          KEY: ${{ vars.VITE_SUPABASE_ANON_KEY }}
+        run: |
+          code=$(curl -s -o /dev/null -w "%{http_code}" "$URL/rest/v1/rpc/save_event" \
+            -H "apikey: $KEY" -H "Authorization: Bearer $KEY" -H "Content-Type: application/json" -d '{}')
+          echo "HTTP $code"
+          # 401/403/404 são esperados (anônimo não tem permissão) — o importante é o banco responder
+          case "$code" in 2*|4*) exit 0 ;; *) exit 1 ;; esac
