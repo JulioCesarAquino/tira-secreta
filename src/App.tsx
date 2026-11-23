@@ -11,10 +11,11 @@ import SetupNeeded from './pages/SetupNeeded'
 export default function App() {
   const route = useHashRoute()
   const session = useSession()
-  const isReveal = route.name === 'reveal'
+  const isReveal = route.name === 'reveal' || route.name === 'short'
 
   let content
-  if (isReveal) content = <Reveal token={route.token} />
+  if (route.name === 'reveal') content = <Reveal key={route.token} token={route.token} />
+  else if (route.name === 'short') content = <Reveal key={route.code} shortCode={route.code} />
   else if (!supabase) content = <SetupNeeded />
   else if (session === undefined) content = <p className="mt-16 text-center text-slate-500">Carregando…</p>
   else if (!session) content = <Login />

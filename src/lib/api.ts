@@ -52,7 +52,9 @@ export async function getEvent(id: string): Promise<EventDraft> {
 }
 
 /** Salva tudo numa transação (função save_event no banco). Retorna o id do evento. */
-export async function saveEvent(draft: EventDraft): Promise<string> {
+export interface RevealRow { id: string; data: string }
+
+export async function saveEvent(draft: EventDraft, reveals: RevealRow[] = []): Promise<string> {
   const named = draft.participants.filter((p) => p.name.trim())
   const ids = new Set(named.map((p) => p.id))
   const { data, error } = await requireSupabase().rpc('save_event', {
@@ -63,6 +65,7 @@ export async function saveEvent(draft: EventDraft): Promise<string> {
     p_restrictions: draft.restrictions
       .filter((r) => ids.has(r.from) && ids.has(r.to))
       .map((r) => ({ from: r.from, to: r.to })),
+    p_reveals: reveals,
   })
   if (error) throw error
   return data as string
@@ -71,4 +74,11 @@ export async function saveEvent(draft: EventDraft): Promise<string> {
 export async function deleteEvent(id: string): Promise<void> {
   const { error } = await requireSupabase().from('events').delete().eq('id', id)
   if (error) throw error
+}
+
+/** Leitura pública (sem login) do conteúdo cifrado de um link curto. */
+export async function fetchReveal(id: string): Promise<string | null> {
+  const { data, error } = await requireSupabase().rpc('get_reveal', { p_id: id })
+  if (error) throw error
+  return (data as string | null) ?? null
 }

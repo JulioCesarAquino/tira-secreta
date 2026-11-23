@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { fromBase64Url, openPayload, sealPayload, toBase64Url } from './crypto'
+import { fromBase64Url, openPayload, openShort, sealPayload, sealShort, SHORT_CODE_RE, shortId, toBase64Url } from './crypto'
 import type { RevealPayload } from './types'
 
 const payload: RevealPayload = {
@@ -34,5 +34,30 @@ describe('crypto', () => {
     const tampered = `${k}.${iv}.${c.slice(0, -2)}${c.endsWith('A') ? 'B' : 'A'}${c.slice(-1)}`
     await expect(openPayload(tampered)).rejects.toThrow()
     await expect(openPayload('lixo')).rejects.toThrow()
+  })
+})
+
+describe('links curtos', () => {
+  it('código de 16 caracteres, id derivado e ida e volta', async () => {
+    const { code, id, data } = await sealShort(payload)
+    expect(code).toMatch(SHORT_CODE_RE)
+    expect(id).toMatch(SHORT_CODE_RE)
+    expect(id).not.toBe(code)
+    expect(await shortId(code)).toBe(id)
+    expect(data).not.toContain('Maria')
+    expect(await openShort(code, data)).toEqual(payload)
+  })
+
+  it('código errado não abre o conteúdo de outro link', async () => {
+    const a = await sealShort(payload)
+    const b = await sealShort(payload)
+    await expect(openShort(b.code, a.data)).rejects.toThrow()
+    await expect(openShort('curto', a.data)).rejects.toThrow()
+  })
+
+  it('converte link longo em curto mantendo o resultado', async () => {
+    const long = await sealPayload(payload)
+    const s = await sealShort(await openPayload(long))
+    expect(await openShort(s.code, s.data)).toEqual(payload)
   })
 })

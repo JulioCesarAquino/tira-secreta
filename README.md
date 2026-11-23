@@ -16,16 +16,16 @@ GitHub Pages (site estático)  ──►  Supabase (Postgres + login)
         └─ #/r/<link>  →  página de revelação, que NÃO consulta o banco
 ```
 
-- O resultado de cada pessoa vai **criptografado dentro do próprio link** (AES-GCM, chave aleatória por link, no fragmento `#` da URL, que nunca é enviado a servidor nenhum).
-- O banco guarda os links, mas nunca guarda “quem tirou quem” em texto aberto.
-- Os links continuam funcionando mesmo se o Supabase estiver fora do ar ou se o evento for excluído.
+- **Links curtos** (`#/s/<código de 16 caracteres>`): o código é um segredo aleatório. Dele o navegador deriva o id da linha no banco e a chave AES-GCM que decifra o resultado. O banco guarda só o conteúdo cifrado, então nem quem administra o banco consegue ler quem tirou quem sem o link.
+- **Links longos** (`#/r/…`, sorteios antigos): o resultado inteiro vai criptografado dentro do link, que não depende do banco. Eles continuam funcionando para sempre, e o botão **“Gerar links curtos”** cria versões curtas com o mesmo resultado.
+- Excluir um evento apaga os links curtos dele.
 - Segurança no banco: RLS (Row Level Security). Cada organizador só lê e altera os próprios eventos, e visitantes anônimos não acessam nada.
 
 ## Configuração (uma vez)
 
 ### 1. Supabase
 1. Crie uma conta em [supabase.com](https://supabase.com) (plano Free, sem cartão) e um projeto novo. Região sugerida: *South America (São Paulo)*.
-2. Vá em **SQL Editor** → cole o conteúdo de [`supabase/migrations/0001_init.sql`](supabase/migrations/0001_init.sql) → **Run**.
+2. Vá em **SQL Editor** e rode, em ordem, cada arquivo de [`supabase/migrations/`](supabase/migrations/) (`0001_init.sql`, `0002_short_links.sql`): cole o conteúdo → **Run**.
 3. Vá em **Authentication → Sign In / Providers → Email**:
    - deixe **Email** habilitado;
    - **desligue “Confirm email”**. O servidor de e-mail padrão do Supabase só envia para membros do projeto, então a confirmação não chegaria para outros organizadores.
@@ -37,7 +37,7 @@ GitHub Pages (site estático)  ──►  Supabase (Postgres + login)
 3. Faça push na `main`. O site vai ao ar em `https://<seu-usuario>.github.io/tira-secreta/`.
 
 ### 3. Manter o Supabase ativo
-O plano grátis pausa o projeto após 7 dias sem uso. O workflow [`keepalive.yml`](.github/workflows/keepalive.yml) faz uma consulta leve duas vezes por semana para evitar isso, sem precisar de configuração extra. Mesmo com o projeto pausado, os links já enviados continuam funcionando.
+O plano grátis pausa o projeto após 7 dias sem uso. O workflow [`keepalive.yml`](.github/workflows/keepalive.yml) faz uma consulta leve duas vezes por semana para evitar isso, sem precisar de configuração extra. Com o projeto pausado, os links curtos não abrem (os longos, sim), por isso essa tarefa é importante.
 
 ## Desenvolvimento
 

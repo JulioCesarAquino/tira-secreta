@@ -4,11 +4,11 @@ import ParticipantsEditor, { emptyParticipant } from '../components/Participants
 import RestrictionsEditor from '../components/RestrictionsEditor'
 import ResultsPanel from '../components/ResultsPanel'
 import Section from '../components/Section'
-import { getEvent, saveEvent } from '../lib/api'
+import { getEvent, saveEvent, type RevealRow } from '../lib/api'
 import { MAX_PARTICIPANTS, MIN_PARTICIPANTS } from '../lib/config'
-import { sealPayload } from '../lib/crypto'
+import { openPayload, sealShort } from '../lib/crypto'
 import { drawPairs, ImpossibleDrawError } from '../lib/draw'
-import { revealUrl } from '../lib/links'
+import { isLongLink, shortRevealUrl } from '../lib/links'
 import type { EventDraft, GeneratedLink } from '../lib/types'
 
 const newDraft = (): EventDraft => ({
@@ -60,8 +60,8 @@ export default function EventEditor({ id }: { id?: string }) {
     setDirty(true)
   }
 
-  const persist = async (next: EventDraft) => {
-    const savedId = await saveEvent(next)
+  const persist = async (next: EventDraft, reveals: RevealRow[] = []) => {
+    const savedId = await saveEvent(next, reveals)
     if (!next.id) window.history.replaceState(null, '', `#/e/${savedId}`)
     setDraft({ ...next, id: savedId, participants: next.participants.filter((p) => p.name.trim()) })
     setDirty(false)
@@ -100,19 +100,21 @@ export default function EventEditor({ id }: { id?: string }) {
       const pairs = drawPairs([...ids], forbidden)
       const byId = new Map(named.map((p) => [p.id, p]))
       const ev = draft.event
+      const reveals: RevealRow[] = []
       const participants = await Promise.all(
         named.map(async (giver) => {
           const r = byId.get(pairs.get(giver.id)!)!
-          const token = await sealPayload({
+          const sealed = await sealShort({
             v: 1,
             ev: { n: ev.name.trim(), d: ev.date, b: ev.budget.trim(), m: ev.message.trim() },
             g: giver.name.trim(),
             r: { n: r.name.trim(), s: r.size.trim(), t: r.description.trim() },
           })
-          return { ...giver, revealUrl: revealUrl(token) }
+          reveals.push({ id: sealed.id, data: sealed.data })
+          return { ...giver, revealUrl: shortRevealUrl(sealed.code) }
         }),
       )
-      await persist({ ...draft, participants, drawnAt: new Date().toISOString() })
+      await persist({ ...draft, participants, drawnAt: new Date().toISOString() }, reveals)
       window.scrollTo({ top: 0, behavior: 'smooth' })
     } catch (e) {
       console.error(e)
@@ -138,6 +140,30 @@ export default function EventEditor({ id }: { id?: string }) {
     .filter((p) => p.revealUrl)
     .map((p) => ({ participantId: p.id, name: p.name, email: p.email, url: p.revealUrl! }))
 
+  /** Converte links longos já enviados em curtos — mesmo resultado, sem novo sorteio. */
+  const shorten = async () => {
+    if (!confirm('Gerar links curtos com o MESMO resultado? Os links longos que você já enviou continuam funcionando.')) return
+    setBusy('save')
+    setError('')
+    try {
+      const reveals: RevealRow[] = []
+      const participants = await Promise.all(
+        draft.participants.map(async (p) => {
+          if (!p.revealUrl || !isLongLink(p.revealUrl)) return p
+          const sealed = await sealShort(await openPayload(p.revealUrl.split('#/r/')[1]))
+          reveals.push({ id: sealed.id, data: sealed.data })
+          return { ...p, revealUrl: shortRevealUrl(sealed.code) }
+        }),
+      )
+      await persist({ ...draft, participants }, reveals)
+    } catch (e) {
+      console.error(e)
+      setError('Não foi possível gerar os links curtos. Tente de novo.')
+    } finally {
+      setBusy('')
+    }
+  }
+
   if (draft.drawnAt && links.length === named.length && !dirty) {
     return (
       <div className="space-y-4">
@@ -146,6 +172,9 @@ export default function EventEditor({ id }: { id?: string }) {
           links={links}
           eventName={draft.event.name}
           drawnAt={draft.drawnAt}
+          onShorten={links.some((l) => isLongLink(l.url)) ? shorten : undefined}
+          shortening={busy === 'save'}
+          error={error}
           onEdit={() => {
             if (!confirm('Links que você já enviou continuam mostrando o resultado ANTIGO. Se já mandou algum, não sorteie de novo. Continuar?')) return
             setDraft({ ...draft, drawnAt: null, participants: draft.participants.map(({ revealUrl: _, ...p }) => p) })

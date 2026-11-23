@@ -4,10 +4,13 @@ export type Route =
   | { name: 'dashboard' }
   | { name: 'event'; id?: string }
   | { name: 'reveal'; token: string }
+  | { name: 'short'; code: string }
 
 function parse(hash: string): Route {
   let m = hash.match(/^#\/r\/(.+)$/)
   if (m) return { name: 'reveal', token: m[1] }
+  m = hash.match(/^#\/s\/([A-Za-z0-9_-]+)$/)
+  if (m) return { name: 'short', code: m[1] }
   if (hash === '#/e/new') return { name: 'event' }
   m = hash.match(/^#\/e\/([0-9a-f-]{36})$/i)
   if (m) return { name: 'event', id: m[1] }

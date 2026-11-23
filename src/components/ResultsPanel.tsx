@@ -2,11 +2,15 @@ import CopyButton from './CopyButton'
 import { downloadCsv, linksAsText, mailtoHref } from '../lib/links'
 import type { GeneratedLink } from '../lib/types'
 
-export default function ResultsPanel({ links, eventName, drawnAt, onEdit }: {
+export default function ResultsPanel({ links, eventName, drawnAt, onEdit, onShorten, shortening, error }: {
   links: GeneratedLink[]
   eventName: string
   drawnAt: string
   onEdit: () => void
+  /** Presente quando há links longos (sorteios antigos) que podem ser encurtados */
+  onShorten?: () => void
+  shortening?: boolean
+  error?: string
 }) {
   const withEmail = links.filter((l) => l.email).length
   return (
@@ -18,6 +22,18 @@ export default function ResultsPanel({ links, eventName, drawnAt, onEdit }: {
           Ninguém viu o resultado — nem você. Envie a cada pessoa <b>o link dela</b>. Quem abrir um link verá o amigo secreto daquela pessoa, então não abra os links dos outros. 😉
         </p>
       </div>
+
+      {onShorten && (
+        <div className="flex flex-wrap items-center justify-between gap-3 rounded-xl bg-sun-400/20 p-4">
+          <p className="text-sm text-slate-700">
+            <b>Links muito longos?</b> Gere versões curtas com o <b>mesmo resultado</b>, sem sortear de novo. Os links antigos continuam funcionando.
+          </p>
+          <button type="button" className="btn-sun" onClick={onShorten} disabled={shortening}>
+            {shortening ? 'Gerando…' : '✂️ Gerar links curtos'}
+          </button>
+        </div>
+      )}
+      {error && <p className="rounded-lg bg-coral-500/10 px-4 py-2 text-sm text-coral-500" role="alert">{error}</p>}
 
       <div className="flex flex-wrap gap-2">
         <CopyButton text={linksAsText(links)} label="📋 Copiar todos (nome: link)" className="btn-primary" />

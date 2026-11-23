@@ -1,9 +1,18 @@
 import type { GeneratedLink } from './types'
 
+/** Link longo (legado): o resultado vai inteiro dentro do link. */
 export function revealUrl(token: string): string {
   const { origin, pathname } = window.location
   return `${origin}${pathname}#/r/${token}`
 }
+
+/** Link curto: só o código; o conteúdo cifrado fica no banco. */
+export function shortRevealUrl(code: string): string {
+  const { origin, pathname } = window.location
+  return `${origin}${pathname}#/s/${code}`
+}
+
+export const isLongLink = (url: string) => url.includes('#/r/')
 
 export function mailtoHref(link: GeneratedLink, eventName: string): string {
   const subject = `🩴 Seu amigo secreto${eventName ? ` – ${eventName}` : ''}`

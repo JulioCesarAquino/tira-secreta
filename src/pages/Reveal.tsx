@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react'
-import { openPayload } from '../lib/crypto'
+import { fetchReveal } from '../lib/api'
+import { openPayload, openShort, shortId, SHORT_CODE_RE } from '../lib/crypto'
 import type { RevealPayload } from '../lib/types'
 
 function formatDate(iso: string) {
@@ -8,7 +9,15 @@ function formatDate(iso: string) {
   return new Date(+m[1], +m[2] - 1, +m[3]).toLocaleDateString('pt-BR', { weekday: 'long', day: 'numeric', month: 'long' })
 }
 
-export default function Reveal({ token }: { token: string }) {
+async function load(token?: string, shortCode?: string): Promise<RevealPayload> {
+  if (token) return openPayload(token)
+  if (!shortCode || !SHORT_CODE_RE.test(shortCode)) throw new Error('Link inválido')
+  const data = await fetchReveal(await shortId(shortCode))
+  if (!data) throw new Error('Link não encontrado')
+  return openShort(shortCode, data)
+}
+
+export default function Reveal({ token, shortCode }: { token?: string; shortCode?: string }) {
   const [data, setData] = useState<RevealPayload | null>(null)
   const [failed, setFailed] = useState(false)
   const [revealed, setRevealed] = useState(false)
@@ -16,18 +25,18 @@ export default function Reveal({ token }: { token: string }) {
   useEffect(() => {
     let alive = true
     setRevealed(false)
-    openPayload(token)
+    load(token, shortCode)
       .then((d) => alive && setData(d))
       .catch(() => alive && setFailed(true))
     return () => { alive = false }
-  }, [token])
+  }, [token, shortCode])
 
   if (failed) {
     return (
       <div className="card mx-auto mt-8 max-w-md text-center">
         <p className="text-5xl">🥲</p>
         <h1 className="mt-2 font-display text-2xl font-extrabold">Link inválido</h1>
-        <p className="mt-1 text-slate-600">Confira se você copiou o link inteiro. Se continuar, peça um novo ao organizador.</p>
+        <p className="mt-1 text-slate-600">Confira se você copiou o link inteiro e tente de novo em alguns segundos. Se continuar, peça um novo ao organizador.</p>
       </div>
     )
   }
@@ -75,7 +84,7 @@ export default function Reveal({ token }: { token: string }) {
           {ev.m && <p className="whitespace-pre-line">📝 {ev.m}</p>}
         </div>
       )}
-      <p className="text-xs text-slate-400">Guarde este link — ele é o único lugar onde seu resultado existe.</p>
+      <p className="text-xs text-slate-400">Guarde este link para consultar de novo quando quiser.</p>
     </div>
   )
 }

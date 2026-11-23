@@ -15,7 +15,7 @@ export default function Dashboard() {
   useEffect(() => { load() }, [])
 
   const remove = async (ev: EventSummary) => {
-    if (!confirm(`Excluir "${ev.name || 'Sem nome'}" e todos os participantes? Os links já enviados continuam funcionando.`)) return
+    if (!confirm(`Excluir "${ev.name || 'Sem nome'}" e todos os participantes? Os links curtos já enviados deixarão de funcionar.`)) return
     try {
       await deleteEvent(ev.id)
       setEvents((list) => list?.filter((x) => x.id !== ev.id) ?? null)
