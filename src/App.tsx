@@ -1,3 +1,4 @@
+import Footer from './components/Footer'
 import Header from './components/Header'
 import { useHashRoute } from './hooks/useHashRoute'
 import { useSession } from './hooks/useSession'
@@ -26,7 +27,7 @@ export default function App() {
     <div className="min-h-screen bg-gradient-to-b from-sand-100 via-sand-50 to-white text-slate-800">
       <Header email={!isReveal ? session?.user.email : undefined} />
       <main className="mx-auto w-full max-w-4xl px-4 pb-16">{content}</main>
-      <footer className="pb-8 text-center text-xs text-slate-400">Tira Secreta · amigo secreto de chinelos</footer>
+      <Footer />
     </div>
   )
 }
