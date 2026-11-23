@@ -1,8 +1,8 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 300">
   <defs>
-    <!-- formato da palmilha: as tiras são recortadas por ele e nunca passam da borda -->
-    <clipPath id="palmilha">
-      <path d="M100 24c32 0 47 30 44 60-2 24-12 37-11 63 1 29-10 53-33 53s-34-24-33-53c1-26-9-39-11-63-3-30 12-60 44-60z"/>
+    <!-- contorno da sola: as tiras vão até a borda externa e são recortadas nela -->
+    <clipPath id="sola">
+      <path d="M100 12c40 0 58 36 55 72-3 26-14 40-13 66 1 34-12 62-42 62s-43-28-42-62c1-26-10-40-13-66-3-36 15-72 55-72z"/>
     </clipPath>
   </defs>
   <g transform="rotate(-14 100 150)">
@@ -10,8 +10,8 @@
     <path d="M100 12c40 0 58 36 55 72-3 26-14 40-13 66 1 34-12 62-42 62s-43-28-42-62c1-26-10-40-13-66-3-36 15-72 55-72z" fill="#14708f"/>
     <!-- palmilha -->
     <path d="M100 24c32 0 47 30 44 60-2 24-12 37-11 63 1 29-10 53-33 53s-34-24-33-53c1-26-9-39-11-63-3-30 12-60 44-60z" fill="#ffc93c"/>
-    <!-- tiras (presas na lateral da palmilha) -->
-    <path clip-path="url(#palmilha)" d="M100 66C86 94 66 116 46 136M100 66c14 28 34 50 56 70" fill="none" stroke="#f45b4b" stroke-width="13" stroke-linecap="round"/>
+    <!-- tiras (cabresto): do pino até a lateral da sola, mais para trás -->
+    <path clip-path="url(#sola)" d="M100 66C88 100 66 134 34 162M100 66c12 34 34 68 66 96" fill="none" stroke="#f45b4b" stroke-width="13" stroke-linecap="round"/>
     <circle cx="100" cy="66" r="9" fill="#f45b4b"/>
     <circle cx="100" cy="66" r="3.5" fill="#fff" opacity=".7"/>
   </g>
