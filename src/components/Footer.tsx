@@ -2,7 +2,8 @@ const INSTAGRAM = 'https://www.instagram.com/juliucaezer/'
 
 export default function Footer() {
   return (
-    <footer className="flex flex-wrap items-center justify-center gap-x-2 gap-y-1 px-4 pb-8 text-center text-sm text-slate-500">
+    <footer className="mt-auto flex justify-center px-4 pb-5 pt-2">
+      <div className="flex flex-wrap items-center justify-center gap-x-2 gap-y-1 rounded-2xl bg-white/75 px-5 py-2.5 text-center text-sm text-slate-600 shadow-sm ring-1 ring-black/5 backdrop-blur-md">
       <span>© {new Date().getFullYear()} Tira Secreta</span>
       <span aria-hidden className="hidden text-slate-300 sm:inline">|</span>
       <span className="inline-flex items-center gap-2">
@@ -22,6 +23,7 @@ export default function Footer() {
           </svg>
         </a>
       </span>
+      </div>
     </footer>
   )
 }

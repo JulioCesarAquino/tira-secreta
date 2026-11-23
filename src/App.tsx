@@ -1,3 +1,4 @@
+import BeachBackground from './components/BeachBackground'
 import Footer from './components/Footer'
 import Header from './components/Header'
 import { useHashRoute } from './hooks/useHashRoute'
@@ -24,9 +25,10 @@ export default function App() {
   else content = <Dashboard />
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-sand-100 via-sand-50 to-white text-slate-800">
+    <div className="relative flex min-h-screen flex-col text-slate-800">
+      <BeachBackground />
       <Header email={!isReveal ? session?.user.email : undefined} />
-      <main className="mx-auto w-full max-w-4xl px-4 pb-16">{content}</main>
+      <main className="mx-auto w-full max-w-4xl flex-1 px-4 pb-12">{content}</main>
       <Footer />
     </div>
   )
