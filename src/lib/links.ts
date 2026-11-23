@@ -24,6 +24,22 @@ export function mailtoHref(link: GeneratedLink, eventName: string): string {
   return `mailto:${encodeURIComponent(link.email)}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`
 }
 
+/** Mensagem pronta para WhatsApp (o nome vai no texto; o card mostra a logo). */
+export function whatsappMessage(link: GeneratedLink, eventName: string): string {
+  return (
+    `🩴 *Tira Secreta*${eventName ? ` · ${eventName}` : ''}\n\n` +
+    `Olá, *${link.name}*! 🎉\n` +
+    `O sorteio do amigo secreto foi feito e o seu resultado já está esperando por você.\n\n` +
+    `👉 Toque no link para descobrir quem você tirou:\n${link.url}\n\n` +
+    `_Esse link é só seu. Não compartilhe! 🤫_`
+  )
+}
+
+/** Abre o WhatsApp (app ou web) com a mensagem pronta; você escolhe o contato. Grátis. */
+export function whatsappHref(link: GeneratedLink, eventName: string): string {
+  return `https://wa.me/?text=${encodeURIComponent(whatsappMessage(link, eventName))}`
+}
+
 export function linksAsText(links: GeneratedLink[]): string {
   return links.map((l) => `${l.name}: ${l.url}`).join('\n')
 }

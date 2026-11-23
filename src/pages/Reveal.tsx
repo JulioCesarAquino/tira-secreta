@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react'
+import logo from '../assets/logo.svg'
 import { fetchReveal } from '../lib/api'
 import { openPayload, openShort, shortId, SHORT_CODE_RE } from '../lib/crypto'
 import type { RevealPayload } from '../lib/types'
@@ -52,7 +53,7 @@ export default function Reveal({ token, shortCode }: { token?: string; shortCode
 
       {!revealed ? (
         <div className="card space-y-4">
-          <p className="animate-bounce text-7xl" aria-hidden>🩴</p>
+          <img src={logo} alt="" className="mx-auto h-28 w-auto animate-bounce" />
           <p className="text-slate-600">Certifique-se de que ninguém está olhando a sua tela…</p>
           <button type="button" onClick={() => setRevealed(true)} className="btn-sun w-full py-3 font-display text-xl">
             Revelar meu amigo secreto

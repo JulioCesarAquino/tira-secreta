@@ -1,5 +1,5 @@
 import CopyButton from './CopyButton'
-import { downloadCsv, linksAsText, mailtoHref } from '../lib/links'
+import { downloadCsv, linksAsText, mailtoHref, whatsappHref, whatsappMessage } from '../lib/links'
 import type { GeneratedLink } from '../lib/types'
 
 export default function ResultsPanel({ links, eventName, drawnAt, onEdit, onShorten, shortening, error }: {
@@ -54,7 +54,11 @@ export default function ResultsPanel({ links, eventName, drawnAt, onEdit, onShor
               <p className="font-semibold">{l.name}</p>
               {l.email && <p className="truncate text-xs text-slate-500">{l.email}</p>}
             </div>
-            <div className="flex gap-2">
+            <div className="flex flex-wrap gap-2">
+              <a className="btn bg-[#25d366] text-white hover:bg-[#1ebe5b]" href={whatsappHref(l, eventName)} target="_blank" rel="noreferrer">
+                WhatsApp
+              </a>
+              <CopyButton text={whatsappMessage(l, eventName)} label="Copiar mensagem" />
               <CopyButton text={l.url} label="Copiar link" />
               {l.email ? (
                 <a className="btn-ghost" href={mailtoHref(l, eventName)}>✉️ E-mail</a>
