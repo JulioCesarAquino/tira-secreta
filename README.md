@@ -35,6 +35,7 @@ GitHub Pages (site estático)  ──►  Supabase (Postgres + login)
 1. A URL e a chave publishable do projeto ficam em [`src/lib/supabase.ts`](src/lib/supabase.ts). Elas são públicas por design: vão no JavaScript do site, e quem protege os dados são as políticas RLS. Para usar outro projeto Supabase, troque esses valores ou crie as variáveis `VITE_SUPABASE_URL` e `VITE_SUPABASE_ANON_KEY` em **Settings → Secrets and variables → Actions → Variables**.
 2. Vá em **Settings → Pages → Source** e selecione **GitHub Actions**.
 3. Faça push na `main`. O site vai ao ar em `https://<seu-usuario>.github.io/tira-secreta/`.
+4. (Opcional) Domínio próprio: em **Settings → Pages → Custom domain**, informe o domínio (ex.: `tirasecreta.site`) e marque **Enforce HTTPS**. No provedor do domínio, crie registros `A` para `185.199.108.153`, `185.199.109.153`, `185.199.110.153` e `185.199.111.153`, e um `CNAME` de `www` para `<seu-usuario>.github.io`. Atualize também as URLs `og:` do [`index.html`](index.html).
 
 ### 3. Manter o Supabase ativo
 O plano grátis pausa o projeto após 7 dias sem uso. O workflow [`keepalive.yml`](.github/workflows/keepalive.yml) faz uma consulta leve duas vezes por semana para evitar isso, sem precisar de configuração extra. Com o projeto pausado, os links curtos não abrem (os longos, sim), por isso essa tarefa é importante.
